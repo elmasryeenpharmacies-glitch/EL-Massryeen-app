@@ -1,0 +1,56 @@
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbxwF8vgU2DtZ5YBMjO_dLg1eFpmw3Q3isEVZ4Jtw8U8NiJOOm715UnfiUIctvLi6y4v/exec";
+
+fetch(API_URL)
+  .then(response => response.json())
+  .then(data => {
+    // يدعم كل الاحتمالات
+    const clients = data.clients || data || [];
+
+    if (!Array.isArray(clients) || clients.length === 0) {
+      document.getElementById("data").innerHTML = "لا توجد بيانات";
+      return;
+    }
+
+    let html = "";
+
+    clients.forEach(client => {
+      html += `<div class="card">`;
+
+      Object.entries(client).forEach(([key, value]) => {
+        if (!value) return;
+
+        // تأكد إن القيمة نص
+        const val = String(value);
+
+        // صور Google Drive
+        if (val.includes("drive.google.com")) {
+          html += `<p><b>${key}</b></p>`;
+          val.split(",").forEach(url => {
+            const img = convertDrive(url.trim());
+            html += `<img src="${img}" loading="lazy">`;
+          });
+        } else {
+          html += `<p><b>${key}:</b> ${val}</p>`;
+        }
+      });
+
+      html += `</div>`;
+    });
+
+    document.getElementById("data").innerHTML = html;
+  })
+  .catch(error => {
+    console.error(error);
+    document.getElementById("data").innerHTML =
+      "❌ خطأ في تحميل البيانات<br>تأكد من رابط الـ API";
+  });
+
+// تحويل لينك Google Drive لصورة مباشرة
+function convertDrive(url) {
+  const match = url.match(/id=([^&]+)/);
+  return match
+    ? `https://drive.google.com/uc?export=view&id=${match[1]}`
+    : url;
+}
+</script>
