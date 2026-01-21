@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>بيانات العملاء</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      font-family: Tahoma, Arial;
+      background: #f2f2f2;
+      padding: 10px;
+    }
+    .card {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+    }
+    img {
+      max-width: 100%;
+      margin-top: 5px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h3>📋 بيانات العملاء</h3>
+<div id="data">جاري التحميل...</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbzgPTXmItmbbow3X_9RWuIIw4O5ZD6XmAqwzHd8SNvDkgH4xi8Fi2C9x2YK-RU6mzR1/exec";
+
+fetch(API_URL)
+  .then(res => res.json())
+  .then(json => {
+    const clients = json.clients;
+    let html = "";
+
+    clients.forEach(client => {
+      html += `<div class="card">`;
+
+      for (let key in client) {
+        if (!client[key]) continue;
+
+        if (client[key].includes("drive.google.com")) {
+          html += `<p><b>${key}</b></p>`;
+          client[key].split(",").forEach(url => {
+            html += `<img src="${convert(url.trim())}">`;
+          });
+        } else {
+          html += `<p><b>${key}:</b> ${client[key]}</p>`;
+        }
+      }
+
+      html += `</div>`;
+    });
+
+    document.getElementById("data").innerHTML = html;
+  });
+
+function convert(url) {
+  const id = url.match(/id=([^&]+)/);
+  return id ? `https://drive.google.com/uc?export=view&id=${id[1]}` : url;
+}
+</script>
+
+</body>
+</html>
